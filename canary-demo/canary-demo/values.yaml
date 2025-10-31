@@ -1,0 +1,38 @@
+replicaCount: 3
+
+image:
+  repository: uonyeka/canary-demo
+  tag: "v1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5000
+
+ingress:
+  enabled: true
+  host: "canary-demo.local"
+
+canary:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "v2"
+
+config:
+  main:
+    appColor: "white"
+    welcomeMessage: "Welcome to Upcommerce.com!"
+  canary:
+    appColor: "green"
+    welcomeMessage: "Welcome to Upcommerce.com Canary!"
+
+serviceMonitor:
+  enabled: true
+
+prometheus:
+  serviceMonitor:
+    labelKey: "release"
+    labelValue: "prometheus"
+

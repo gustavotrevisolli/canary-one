@@ -1,0 +1,40 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-main-servicemonitor
+  labels:
+    app: {{ .Release.Name }}
+{{- if and .Values.prometheus.serviceMonitor.labelKey .Values.prometheus.serviceMonitor.labelValue }}
+    {{ .Values.prometheus.serviceMonitor.labelKey }}: {{ .Values.prometheus.serviceMonitor.labelValue }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      {{ .Values.prometheus.serviceMonitor.labelKey }}: {{ .Values.prometheus.serviceMonitor.labelValue }} # <--- ADD THIS LINE
+  endpoints:
+  - targetPort: {{ .Values.service.targetPort }}
+    path: /metrics
+
+---
+{{- if .Values.canary.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-canary-servicemonitor
+  labels:
+    app: {{ .Release.Name }}-canary
+{{- if and .Values.prometheus.serviceMonitor.labelKey .Values.prometheus.serviceMonitor.labelValue }}
+    {{ .Values.prometheus.serviceMonitor.labelKey }}: {{ .Values.prometheus.serviceMonitor.labelValue }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-canary
+      {{ .Values.prometheus.serviceMonitor.labelKey }}: {{ .Values.prometheus.serviceMonitor.labelValue }} # <--- ADD THIS LINE
+  endpoints:
+  - targetPort: {{ .Values.service.targetPort }}
+    path: /metrics
+{{- end }}
+{{- end }}
